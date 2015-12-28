@@ -1,19 +1,41 @@
-// Enemies our player must avoid
-var Enemy = function() {
+/*
+ Enemy creates bugs that our player must avoid
+ - takes params x and y for initial locations and speed variable for
+ traveling speed
+ */
+var Enemy = function(x, y, speed) {
     // Variables applied to each of our instances go here,
     // we've provided one for you to get started
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+
+    // Set the enemy initial location
+    this.x = x;
+    this.y = y;
+    this.speed = speed;
 };
 
-// Update the enemy's position, required method for game
-// Parameter: dt, a time delta between ticks
+/*
+ Update the enemy's position, required method for game
+ Parameter: dt, a time delta between ticks
+ */
 Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    this.x = this.x + this.speed * dt;
+
+    // Update the enemy location
+    var rightEdge = 500;
+    if (this.x > rightEdge) {
+        this.x = -50;
+        this.updateBugSpeed();
+    }
+
+    // Handle collision with player
+    this.collisionDetector();
 };
 
 // Draw the enemy on the screen, required method for game
@@ -21,19 +43,130 @@ Enemy.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
+// Determine random new speed for bugs returning to screen
+Enemy.prototype.updateBugSpeed = function() {
+    var randomSpeedMultiplier = Math.random() * (5 - 1 + 1) + 1;
+    this.speed = randomSpeedMultiplier * 100;
+};
+
+// Check if enemy and player come into contact, player loses if true
+Enemy.prototype.collisionDetector = function() {
+    var yDiff = this.y - player.y;
+    var xDiff = this.x - player.x;
+
+    if (yDiff > -20 && yDiff < 20)
+    {
+        if (xDiff > -50 && xDiff < 50)
+            player.lose();
+    }
+};
 
 
-// Now instantiate your objects.
+/*
+ Player creates the user's player character
+ Parameters x and y set the players initial location
+ */
+var Player = function(x, y) {
+    this.sprite = 'images/char-horn-girl.png';
+    this.x = x;
+    this.y = y;
+    this.score = 0;
+    this.displayScore();
+};
+
+// Draw the player on the screen
+Player.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+// Update game; dt is parameter for delta time
+Player.prototype.update = function(dt) {
+    // works with empty function
+};
+
+// Handle user input via the arrow keys in key parameter
+Player.prototype.handleInput = function(key) {
+    // define player bounds
+    var leftbound = -2;
+    var rightbound = 402;
+    var top = 68;
+    var bottom = 400;
+
+    // move player, but keep character in bounds
+    if (key === 'left')
+    {
+        if (this.x == leftbound)
+            this.x = this.x;
+        else
+            this.x -= 101;
+    }
+    if (key === 'right')
+    {
+        if (this.x == rightbound)
+            this.x = this.x;
+        else
+            this.x += 101;
+    }
+    if (key === 'up')
+    {
+        if (this.y == top)
+            this.win();
+        else
+            this.y -= 83;
+    }
+    if (key === 'down')
+    {
+        if (this.y == bottom)
+            this.y = this.y;
+        else
+            this.y += 83;
+    }
+};
+
+// Reset player location to initial location
+Player.prototype.resetLocation = function() {
+    this.x = 200;
+    this.y = 400;
+};
+
+// Increase score and reset player location when player wins
+Player.prototype.win = function() {
+    this.score++;
+    this.resetLocation();
+    this.displayScore();
+};
+
+// Decrease score and reset player location when player dies
+Player.prototype.lose = function() {
+    this.score--;
+    this.resetLocation();
+    this.displayScore();
+};
+
+// Display player's score at top of screen
+Player.prototype.displayScore = function() {
+    var scoreString = "Score: " + this.score.toString();
+    document.querySelector("#score").innerHTML = scoreString;
+};
+
+
+
 // Place all enemy objects in an array called allEnemies
+var allEnemies = [];
+var enemy;
+for (var i = 0; i < 3; i++) {
+    var x = 0;
+    var y = 60;
+    var speed = Math.floor(Math.random() * (500 - 100 + 1)) + 100;
+    enemy = new Enemy(x, y + 83 * i, speed);
+    allEnemies.push(enemy);
+}
+
 // Place the player object in a variable called player
+var player = new Player(200, 400);
 
 
-
-// This listens for key presses and sends the keys to your
-// Player.handleInput() method. You don't need to modify this.
+// Listen for key presses and send input to handleInput()
 document.addEventListener('keyup', function(e) {
     var allowedKeys = {
         37: 'left',
