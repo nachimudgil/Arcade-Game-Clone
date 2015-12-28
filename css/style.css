@@ -1,3 +1,26 @@
 body {
     text-align: center;
 }
+
+h1 {
+    color: lightcoral;
+}
+
+h3 {
+    color: cornflowerblue;
+}
+
+h1, h3 {
+    font-family: 'Indie Flower', cursive;
+    text-shadow: 4px 3px 0px #fff, 9px 8px 0px rgba(0,0,0,0.15);
+
+}
+
+#score:hover, #heading:hover {
+    text-shadow: 0px 0 15px #fff;
+}
+#score, #heading {
+    -webkit-transition: all 0.7s ease;
+    transition: all 0.7s ease;
+}
+
